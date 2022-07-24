@@ -1,4 +1,4 @@
-pragma solidity 0.5.0;
+pragma solidity 0.5.5;
 
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v2.5.0/contracts/token/ERC721/ERC721Full.sol";
 
@@ -17,8 +17,6 @@ contract coffeeChain is ERC721Full {
 
     mapping(address => Node) public allNodes;
 
-
-
     // --------Functions--------    
     function addNode(
         address payable businessAddress,
@@ -27,8 +25,8 @@ contract coffeeChain is ERC721Full {
         string memory latitude,
         string memory longitude
     ) public {
-        Nodes[businessAddress] = Node(name, nodeType, latitude, longitude);
-    }
+
+        }
 
     function registerCoffee(
         address owner,
@@ -41,13 +39,15 @@ contract coffeeChain is ERC721Full {
 
     function transferCoffee(
         address owner, 
-        address newOwner
+        address newOwner,
         uint256 tokenId
         ) public {
         require(owner == ownerOf(tokenId));
         transferFrom(owner, newOwner, tokenId);
         }
+}
 
+/*
     function getNode(address businessAddress) public view returns (Node) {
         return Nodes[businessAddress];
     }
@@ -55,4 +55,4 @@ contract coffeeChain is ERC721Full {
     function getCoffeeBag(uint256 tokenId) public view returns (CoffeeBag) {
         return coffeeBag[tokenId];
     }
-}
+*/
