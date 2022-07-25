@@ -31,20 +31,7 @@ contract coffeeChain is ERC721Full {
     modifier isAdmin{
         _;
     }
-    modifier isPrimaryProduction{
-       require(allNodes[msg.sender].nodeType == , "not authorised");
-       _;
-    }
-    modifier isStorage{
-       _;
-    }
-    modifier isRoaster{
-       _;
-    }
-    modifier isRetail{
-       _;
-    }
-*/
+    */
 
     //--------Events--------
 
