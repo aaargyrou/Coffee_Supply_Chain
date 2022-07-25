@@ -38,7 +38,7 @@ class SupplyChainContract:
             self.add_node(node[1], node[0], node[4], node[2], node[3])
 
         for index, batch in batches.iterrows():
-            self.add_batch(batch[0], "Arabica")
+            self.add_batch(batch[0], batch[1])
 
         for index, transaction in transactions.iterrows():
             self.transfer_batch(transaction[0], transaction[1], int(transaction[2]))
