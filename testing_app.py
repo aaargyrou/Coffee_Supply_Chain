@@ -1,133 +1,96 @@
 import os
-import json
-import pandas as pd
-import numpy as np
-from web3 import Web3
-from pathlib import Path
 from dotenv import load_dotenv
 import streamlit as st
-import time
+from supply_chain import SupplyChainContract
 
 # load environment variables
 load_dotenv()
+w3_providerURI = os.getenv("WEB3_PROVIDER_URI")
+contract_address = os.getenv("SMART_CONTRACT_ADDRESS")
+path_to_contract = './contracts/compiled/coffeeChain.json'
 
-# Init web3 provider connection
-w3 = Web3(Web3.HTTPProvider(os.getenv("WEB3_PROVIDER_URI")))
-
-@st.cache(allow_output_mutation=True)
-def load_contract(abi_json):
-    '''
-    loads a precompiled solidity contract, returns a w3.py contract object
-    '''
-
-    # Load the contract ABI
-    with open(Path(f'./contracts/compiled/{abi_json}.json')) as f:
-        contract_abi = json.load(f)
-
-    # Set the contract address (this is the address of the deployed contract)
-    contract_address = os.getenv("SMART_CONTRACT_ADDRESS")
-
-    # Get the contract
-    contract = w3.eth.contract(
-        address=contract_address,
-        abi=contract_abi
-    )
-
-    return contract
-
-def populate_supply_chain():
-    """
-    populates the testnet with mock data from the csv files
-    """
-    nodes = pd.read_csv('mock_data.csv', index_col= 'index')
-    batches = pd.read_csv('mock_batches.csv', index_col= 'index')
-    transactions = pd.read_csv('mock_transactions.csv', index_col='Index')
-
-    for row in nodes.index:
-        node = nodes.loc[row]
-        coffee_chain_contract.functions.addNode(node[1], node[0], node[4], str(np.floor(node[2])), str(np.floor(node[3]))).transact({'from': node[1], 'gas': 1000000})
-
-    for row in batches.index:
-        batch = batches.loc[row]
-        coffee_chain_contract.functions.addBatch(batch[0], "Arabica").transact({'from': batch[0], 'gas': 1000000})
-
-    for row in transactions.index:
-        transaction = transactions.loc[row]
-        coffee_chain_contract.functions.transferBatch(transaction[0], transaction[1], int(transaction[2])).transact({'from': transaction[0], 'gas': 1000000})
-
-# load the contract
-coffee_chain_contract = load_contract("coffeeChain")
+# Init supply chain contract
+coffee_contract = SupplyChainContract(w3_providerURI, path_to_contract, contract_address)
 
 # list of addresses on the testnet
-addresses = w3.eth.accounts
+addresses = coffee_contract.w3_provider.eth.accounts
 
 
 # populate whole contract with test data
 st.sidebar.markdown("Populate the blockchain with testing data")
 if st.sidebar.button("populate with data"):
-    populate_supply_chain()
+    coffee_contract.populate_supply_chain()
 
 # streamlit section for testing nodes
 st.sidebar.markdown("---")
 st.sidebar.markdown("view Node info")
 address = st.sidebar.selectbox("owner ETH address", options=addresses)
-if st.sidebar.button("view node info"):
-    node = coffee_chain_contract.functions.Nodes(address).call()
-    st.write(node)
 
+# button to view node info
+if st.sidebar.button("view node info"):
+    node = coffee_contract.get_node(address)
+    st.write(node)
 
 # streamlit section for testing NFT minting
 st.sidebar.markdown("---")
 st.sidebar.markdown("create a coffee batch")
 
+# variables used in minting a batch
 creator = st.sidebar.selectbox("creator", options=addresses)
 batch_uri = st.sidebar.text_input("info or URI about batch")
 
+# button for transaction
 if st.sidebar.button("mint a new batch NFT"):
-    batch = coffee_chain_contract.functions.addBatch(creator, batch_uri).transact({'from': creator, 'gas': 1000000})
-    st.write(batch)
+    batch = coffee_contract.mint_batch(creator, batch_uri)
+    st.write(f'batch has been created!\n txn hash: {batch}')
 
 
 # streamlit section for testing NFT transfers
 st.sidebar.markdown("---")
 st.sidebar.markdown("send a batch to another address")
 
-all_tokens = coffee_chain_contract.functions.totalSupply().call()
-
+# variables used in sending a batch
 owner = st.sidebar.selectbox("address from", options=addresses)
 to = st.sidebar.selectbox("address to", options=addresses)
-batch_num = st.sidebar.number_input("select batch", min_value=0, max_value=all_tokens)
+batch_num = st.sidebar.number_input("select batch", min_value=0)
 
+# button for transaction
 if st.sidebar.button("send a batch"):
-    sent_batch = coffee_chain_contract.functions.transferBatch(owner, to, batch_num).transact({'from': owner, 'gas': 1000000})
-    st.write(sent_batch)
+    sent_batch = coffee_contract.send_batch(owner, to, batch_num)
+    if sent_batch:
+        st.write(f'batch has been sent\n txn hash: {sent_batch}')
 
 
 # streamlist section for viewing events
 st.sidebar.markdown("---")
-st.sidebar.markdown("view batch events")
+st.sidebar.markdown("view batch details")
 
-batch_filter = st.sidebar.number_input("select batch to filter by", min_value=0, max_value=all_tokens)
+# set tokn value to view all events associated with that token
+token = st.sidebar.number_input("select a token to view events", min_value=0)
 
-if st.sidebar.button("view the coffee events"):
-    appraisal_filter = coffee_chain_contract.events.transfer.createFilter(fromBlock=0, argument_filters={"tokenId": batch_filter})
-    reports = appraisal_filter.get_all_entries()
+# button to view all nodes a batch has passed through
+if st.sidebar.button("view the coffee history"):
+    addresses = coffee_contract.get_transfer_addresses(token)
+    for address in addresses:
+        node_from = coffee_contract.get_node(address[0])
+        node_to = coffee_contract.get_node(address[1])
 
-    if reports:
-        for x, report in enumerate(reports):
-            report_dict = dict(report)
-            transfer_from = report_dict["args"]["transferFrom"]
-            transfer_to = report_dict["args"]["transferTo"]
-            supply_chain_from = coffee_chain_contract.functions.Nodes(transfer_from).call()
-            supply_chain_to = coffee_chain_contract.functions.Nodes(transfer_to).call()
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.write(node_from)
+        with col2:
+            st.markdown("# -->")
+        with col3:
+            st.write(node_to)
 
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.write(supply_chain_from)
-            with col2:
-                st.markdown("# -->")
-            with col3:
-                st.write(supply_chain_to)
-    else:
-        st.write("This batch has not moved from its place of origin.")
+# button to view a list of coordinate tuples for each node that the batch passed through
+if st.sidebar.button("get coordinates list"):
+    st.write(coffee_contract.get_all_cooordinates(token))
+   
+# button to view a list of address tuples for each transaction
+if st.sidebar.button("view all owner addresses"):
+    st.write(coffee_contract.get_transfer_addresses(token))
 
+# button to view the batch info or URI
+if st.sidebar.button("view batch info"):
+    st.write(coffee_contract.get_batch_info(token))
