@@ -34,17 +34,14 @@ class SupplyChainContract:
         batches = pd.read_csv('mock_batches.csv', index_col= 'index')
         transactions = pd.read_csv('mock_transactions.csv', index_col='Index')
 
-        for row in nodes.index:
-            node = nodes.loc[row]
-            self.contract.functions.addNode(node[1], node[0], node[4], str(np.floor(node[2])), str(np.floor(node[3]))).transact({'from': node[1], 'gas': 1000000})
+        for index, node in nodes.iterrows():
+            self.add_node(node[1], node[0], node[4], node[2], node[3])
 
-        for row in batches.index:
-            batch = batches.loc[row]
-            self.contract.functions.addBatch(batch[0], "Arabica").transact({'from': batch[0], 'gas': 1000000})
+        for index, batch in batches.iterrows():
+            self.add_batch(batch[0], "Arabica")
 
-        for row in transactions.index:
-            transaction = transactions.loc[row]
-            self.contract.functions.transferBatch(transaction[0], transaction[1], int(transaction[2])).transact({'from': transaction[0], 'gas': 1000000})
+        for index, transaction in transactions.iterrows():
+            self.transfer_batch(transaction[0], transaction[1], int(transaction[2]))
 
     def get_all_cooordinates(self, token_number):
         '''
@@ -99,14 +96,14 @@ class SupplyChainContract:
         
         return transfers 
 
-    def send_batch(self, owner, recipient, token_number, gas=1000000):
+    def transfer_batch(self, owner, recipient, token_number, gas=1000000):
         '''
         sends a token (representing a batch) from owner to recipient using ERC721 safeTransfer.
         gas limit defaults to 10000000
         '''
         return self.contract.functions.transferBatch(owner, recipient, token_number).transact({'from': owner, 'gas': gas})
 
-    def mint_batch(self, creator_address, batch_uri, gas=1000000):
+    def add_batch(self, creator_address, batch_uri, gas=1000000):
         '''
         mints a new ERC721 token representing a new batch of goods, attachment of a URI (string) allows for documentation/specifications
         '''
@@ -117,3 +114,14 @@ class SupplyChainContract:
         returns json object containing information about a node associated with an ethereum address
         '''
         return self.contract.functions.Nodes(address).call()
+
+    def add_node(self, address, name, type, latitude, longitude, gas=1000000):
+        '''
+        adds a node to the contract (consumes gas)
+        address (string) = 42-character hexadecimal address associated with the ethereum blockchain
+        name (string) = name of the node
+        type (string) = function or operation that this node performs in the supplychain
+        latitude (float/int) = latitude of the node
+        longitude (float/int) = longitude of the node
+        '''
+        return self.contract.functions.addNode(address, name, type, str(np.floor(latitude)), str(np.floor(longitude))).transact({'from': address, 'gas': gas})

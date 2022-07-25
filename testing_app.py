@@ -25,6 +25,17 @@ if st.sidebar.button("populate with data"):
 st.sidebar.markdown("---")
 st.sidebar.markdown("view Node info")
 address = st.sidebar.selectbox("owner ETH address", options=addresses)
+name = st.sidebar.text_input('name of the node')
+node_type = st.sidebar.text_input('node_type (eg: retail)')
+latitude = st.sidebar.number_input('node latitude')
+longitude = st.sidebar.number_input('node longitude')
+
+if st.sidebar.button("add a node"):
+    if coffee_contract.get_node(address):
+        st.write("node already exists")
+    else:
+        coffee_contract.add_node(address, name, node_type, latitude, longitude)
+        st.write(f'{coffee_contract.get_node(address)} has been added')
 
 # button to view node info
 if st.sidebar.button("view node info"):
@@ -41,7 +52,7 @@ batch_uri = st.sidebar.text_input("info or URI about batch")
 
 # button for transaction
 if st.sidebar.button("mint a new batch NFT"):
-    batch = coffee_contract.mint_batch(creator, batch_uri)
+    batch = coffee_contract.add_batch(creator, batch_uri)
     st.write(f'batch has been created!\n txn hash: {batch}')
 
 
@@ -56,7 +67,7 @@ batch_num = st.sidebar.number_input("select batch", min_value=0)
 
 # button for transaction
 if st.sidebar.button("send a batch"):
-    sent_batch = coffee_contract.send_batch(owner, to, batch_num)
+    sent_batch = coffee_contract.transfer_batch(owner, to, batch_num)
     if sent_batch:
         st.write(f'batch has been sent\n txn hash: {sent_batch}')
 
