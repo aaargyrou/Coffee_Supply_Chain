@@ -23,7 +23,7 @@ Utilising a Streamlit front end this supply chain tracks the transactions and mo
 Ultimately allowing the end user (consumer) to scan a QR code enabling them to access the full history of the supply chain of a specific bag of coffee.
 
 
-    [insert diagram of flow from harvester to consumer]
+`[insert diagram of flow structure from harvester to consumer]`
 
 
 ## Technologies Used
@@ -40,7 +40,7 @@ Ultimately allowing the end user (consumer) to scan a QR code enabling them to a
 
 ## Getting Started
 ### Installing
-A step by step series of examples on how to install this application:
+**A step by step series of examples on how to install this application:**
 
 	git clone https://github.com/aaargyrou/Coffee_Supply_Chain.git
 
@@ -51,10 +51,15 @@ Ensure all technologies have been installed:
     pip install web3
     pip install python-dotenv
 
-Navigate to the folder in your gitbash/terminal
-    
-    cd Coffee_Supply_Chain
-
 
 ## Utilising the User Interface
-A step by step series of examples on how to use this application:
+**A step by step series of examples on how to use this application:**
+
+Navigate to the folder
+
+    cd Coffee_Supply_Chain
+
+Run the Streamlit Application
+
+    streamlit run app.py
+
