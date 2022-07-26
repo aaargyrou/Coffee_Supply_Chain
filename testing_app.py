@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 import streamlit as st
 from supply_chain import SupplyChainContract
+data = []
 
 # load environment variables
 load_dotenv()
@@ -85,6 +86,7 @@ if st.sidebar.button("view the coffee history"):
     for address in addresses:
         node_from = coffee_contract.get_node(address[0])
         node_to = coffee_contract.get_node(address[1])
+        data.append(node_from)
 
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -93,7 +95,8 @@ if st.sidebar.button("view the coffee history"):
             st.markdown("# -->")
         with col3:
             st.write(node_to)
-
+    st.write(data)
+    st.write(f"This data is collected from {data[0][0]}")
 # button to view a list of coordinate tuples for each node that the batch passed through
 if st.sidebar.button("get coordinates list"):
     st.write(coffee_contract.get_all_cooordinates(token))

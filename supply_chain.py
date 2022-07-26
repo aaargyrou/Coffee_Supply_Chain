@@ -124,4 +124,4 @@ class SupplyChainContract:
         latitude (float/int) = latitude of the node
         longitude (float/int) = longitude of the node
         '''
-        return self.contract.functions.addNode(address, name, type, str(np.floor(latitude)), str(np.floor(longitude))).transact({'from': address, 'gas': gas})
+        return self.contract.functions.addNode(address, name, type, str((latitude)), str((longitude))).transact({'from': address, 'gas': gas})
