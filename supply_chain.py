@@ -34,6 +34,7 @@ class SupplyChainContract:
         batches = pd.read_csv('mock_batches.csv', index_col= 'index')
         transactions = pd.read_csv('mock_transactions.csv', index_col='Index')
 
+        # Add all data in nodes to the testnet
         for index, node in nodes.iterrows():
             self.add_node(node[1], node[0], node[4], node[2], node[3])
 
