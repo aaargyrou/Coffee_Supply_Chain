@@ -28,11 +28,14 @@ Ultimately allowing the end user (consumer) to scan a QR code enabling them to a
 
 ## Technologies Used
 
-* RemixIDE
-* Python 3
-* Streamlit
-* Ganache
-* Metamask
+* [RemixIDE](https://remix-project.org/)
+* [Web3](https://web3py.readthedocs.io/en/stable)
+* [Streamlit](https://streamlit.io/)
+* [Dotenv](https://pypi.org/project/python-dotenv/)
+* [Python 3.7]()
+* [QR Code](https://pypi.org/project/qrcode/)
+* [Ganache](https://trufflesuite.com/ganache/)
+* [Metamask](https://metamask.io/)
 
 
 ## Getting Started
@@ -41,11 +44,12 @@ A step by step series of examples on how to install this application:
 
 	git clone https://github.com/aaargyrou/Coffee_Supply_Chain.git
 
-Ensure all technologies have been installed
+Ensure all technologies have been installed:
 
-    pip install
-    pip install
-    pip install
+    pip install streamlit
+    pip install qrcode
+    pip install web3
+    pip install python-dotenv
 
 Navigate to the folder in your gitbash/terminal
     
