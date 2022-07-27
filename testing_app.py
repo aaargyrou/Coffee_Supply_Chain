@@ -7,14 +7,19 @@ from supply_chain import SupplyChainContract
 load_dotenv()
 w3_providerURI = os.getenv("WEB3_PROVIDER_URI")
 contract_address = os.getenv("SMART_CONTRACT_ADDRESS")
+user_address = os.getenv("CONTRACT_USER_ADDRESS")
 path_to_contract = './contracts/compiled/coffeeChain.json'
 
 # Init supply chain contract
-coffee_contract = SupplyChainContract(w3_providerURI, path_to_contract, contract_address)
+coffee_contract = SupplyChainContract(
+    w3_providerURI,
+    path_to_contract,
+    contract_address,
+    user_address
+    )
 
 # list of addresses on the testnet
 addresses = coffee_contract.w3_provider.eth.accounts
-
 
 # populate whole contract with test data
 st.sidebar.markdown("Populate the blockchain with testing data")

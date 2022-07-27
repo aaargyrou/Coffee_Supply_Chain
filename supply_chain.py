@@ -3,17 +3,26 @@ import pandas as pd
 import numpy as np
 from web3 import Web3
 from pathlib import Path
+from decimal import Decimal
 
 class SupplyChainContract:
     '''
     creates a w3.py contract object with additonal functionality for interacting with the supplychain smart contract.
+    User addresse determines accessable functions when calling transactional functions. Refer to the deployed smart contract for user permissions.
+
+    Args:
+        web3_provider_URI (string): HTTP URI to the web3 provider
+        contract_json_path (string): path to the compiled contract abi.json
+        deployed_address (string): 42-character hexadecimal address for the deployed contract
+        user_address (string):  42-character hexadecimal address forvthe user of the SupplyChainContract
     '''
 
-    def __init__ (self, web3_provider_URI, contract_json_path, deployed_address):
+    def __init__ (self, web3_provider_URI, contract_json_path, deployed_address, user_address):
         self.w3_provider = Web3(Web3.HTTPProvider(web3_provider_URI))
         self.compiled_contract = contract_json_path
         self.address = deployed_address
         self.contract = self.load_contract()
+        self.user = user_address
 
     def load_contract(self):
         '''
@@ -39,19 +48,24 @@ class SupplyChainContract:
             self.add_node(node[1], node[0], node[4], node[2], node[3])
 
         for index, batch in batches.iterrows():
-            self.add_batch(batch[0], batch[1])
+            self.add_batch(batch[0], batch[1], batch[2], batch[3])
 
         for index, transaction in transactions.iterrows():
+            #due to default false batch state, batch states need to be set to true before transactions occur
+            self.set_batch_state(True, int(transaction[2]))
             self.transfer_batch(transaction[0], transaction[1], int(transaction[2]))
 
-    def get_all_cooordinates(self, token_number):
+    def get_all_cooordinates(self, token_id):
         '''
         Gets data from each node visited by a token. 
-        Returns a list of tuples with values linked chronologically,
-        each tuple represents a coordinate.
+
+        Args:
+            token_id (int): unique token identificaiton number representing the batch
+        Returns:
+            A list of tuples with values linked chronologically, each tuple represents a coordinate.
         '''
         # create a filter and get all entries filtered by token number
-        token_filter = self.contract.events.transfer.createFilter(fromBlock=0, argument_filters={"tokenId": token_number})
+        token_filter = self.contract.events.transfer.createFilter(fromBlock=0, argument_filters={"tokenId": token_id})
         filtered_events = token_filter.get_all_entries()
 
         # init empty list to hold coordinate tuples.
@@ -71,21 +85,27 @@ class SupplyChainContract:
             coordinates.append((node_data[2], node_data[3]))
         return coordinates
 
-    def get_batch_info(self, token_number):
+    def get_batch_info(self, token_id):
         '''
         gets the URI information about a batch.
-        '''
-        return self.contract.functions.Batches(token_number).call()
 
-    def get_transfer_addresses(self, token_number):
+        Args:
+            token_id (int): unique token identificaiton number representing the batch
         '''
-        returns a list of tuples, each tuple contains the address from and address to for all transfers of a batch.
+        return self.contract.functions.Batches(token_id).call()
+
+    def get_transfer_addresses(self, token_id):
+        '''
+        gets a list of tuples, each tuple contains the address from and address to for all transfers of a batch.
+
+        Args:
+            token_id (int): unique token identificaiton number representing the batch
         '''
         # init empty list 
         transfers = []
 
         # filter for given token
-        token_filter = self.contract.events.transfer.createFilter(fromBlock=0, argument_filters={"tokenId": token_number})
+        token_filter = self.contract.events.transfer.createFilter(fromBlock=0, argument_filters={"tokenId": token_id})
         reports = token_filter.get_all_entries()
 
         # loop through all events and append addresses from each event.
@@ -97,18 +117,31 @@ class SupplyChainContract:
         
         return transfers 
 
-    def transfer_batch(self, owner, recipient, token_number, gas=1000000):
+    def transfer_batch(self, owner, recipient, token_id, gas=1000000):
         '''
         sends a token (representing a batch) from owner to recipient using ERC721 safeTransfer.
-        gas limit defaults to 10000000
-        '''
-        return self.contract.functions.transferBatch(owner, recipient, token_number).transact({'from': owner, 'gas': gas})
 
-    def add_batch(self, creator_address, batch_uri, gas=1000000):
+        Args:
+            owner (string): 42-character hexadecimal address associated with the ethereum blockchain
+            recipient (string): 42-character hexadecimal address associated with the ethereum blockchain
+            token_id (int): unique token identificaiton number representing the batch
+            gas (int): maximum gas to consume during transaction
         '''
-        mints a new ERC721 token representing a new batch of goods, attachment of a URI (string) allows for documentation/specifications
+        batch_value = self.contract.functions.getBatchValue(token_id).call()
+        return self.contract.functions.transferBatch(owner, recipient, token_id).transact({'from': recipient, 'value': batch_value, 'gas': gas})
+
+    def add_batch(self, creator_address, batch_uri, batch_value, batch_state = False, gas=1000000):
         '''
-        return self.contract.functions.addBatch(creator_address, batch_uri).transact({'from': creator_address, 'gas': gas})
+        mints a new ERC721 token representing a new batch of goods.
+
+        Args:
+            creator_address (string): 42-character hexadecimal address associated with the ethereum blockchain
+            batch_uri (string): URI to documentation/specifications or batch attributes
+            batch_value (int): value of the batch token in ETH (value converted to wei before transacting)
+            batch_state (bool): boolean value to determine if a batch is ready for transfer or not (true enables transfers, default to False)
+        '''
+        value_wei = Web3.toWei(Decimal(batch_value), 'ether')
+        return self.contract.functions.addBatch(creator_address, batch_uri, value_wei, batch_state).transact({'from': self.user, 'gas': gas})
     
     def get_node(self, address):
         '''
@@ -116,13 +149,48 @@ class SupplyChainContract:
         '''
         return self.contract.functions.Nodes(address).call()
 
-    def add_node(self, address, name, type, latitude, longitude, gas=1000000):
+    def add_node(self, node_address, name, type, latitude, longitude, gas=1000000):
         '''
         adds a node to the contract (consumes gas)
-        address (string) = 42-character hexadecimal address associated with the ethereum blockchain
-        name (string) = name of the node
-        type (string) = function or operation that this node performs in the supplychain
-        latitude (float/int) = latitude of the node
-        longitude (float/int) = longitude of the node
+
+        Args:
+            address (string): 42-character hexadecimal address associated with the ethereum blockchain
+            name (string): name of the node
+            type (string): function or operation that this node performs in the supplychain
+            latitude (float/int): latitude of the node
+            longitude (float/int): longitude of the node
+            gas (int): maximum gas to consume during transaction
         '''
-        return self.contract.functions.addNode(address, name, type, str(np.floor(latitude)), str(np.floor(longitude))).transact({'from': address, 'gas': gas})
+        return self.contract.functions.addNode(node_address, name, type, str(latitude), str(longitude)).transact({'from': self.user, 'gas': gas})
+
+    def set_batch_state(self, state, token_id, gas=1000000):
+        '''
+        sets the boolean state of a batch, user address pays for gas.
+
+        Args:
+            state (bool): boolean value to determine if a batch is ready for transfer or not (true enables transfers)
+            token_id (int): unique token identificaiton number representing the batch
+            gas (int): maximum gas to consume during transaction
+        '''
+        return self.contract.functions.setBatchState(state, token_id).transact({'from': self.user, 'gas': gas})
+
+    def set_batch_value(self, value, token_id, gas=1000000):
+        '''
+        sets the value of a batch, user address pays for gas.
+
+        Args:
+            value (int): value of the batch token in ETH (value converted to wei before transacting)
+            token_id (int): unique token identificaiton number representing the batch
+            gas (int): maximum gas to consume during transaction
+        '''
+        value_wei = Web3.toWei(Decimal(value), 'ether')
+        return self.contract.functions.setBatchValue(value_wei, token_id).transact({'from': self.user, 'gas': gas})
+    
+    def get_batch_value(self):
+        pass
+
+    def get_batch_state(self):
+        pass
+
+    def payout_for_batch(self):
+        pass
