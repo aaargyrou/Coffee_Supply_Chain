@@ -7,26 +7,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 import streamlit as st
 
-# Add Functions
-def get_node(self, address):
-        '''
-        returns json object containing information about a node associated with an ethereum address
-        '''
-        return self.contract.functions.Nodes(address).call()
-
-def add_node(self, node_address, name, type, latitude, longitude, gas=1000000):
-    '''
-    adds a node to the contract (consumes gas)
-    Args:
-        address (string): 42-character hexadecimal address associated with the ethereum blockchain
-        name (string): name of the node
-        type (string): function or operation that this node performs in the supplychain
-        latitude (float/int): latitude of the node
-        longitude (float/int): longitude of the node
-        gas (int): maximum gas to consume during transaction
-    '''
-    return self.contract.functions.addNode(node_address, name, type, str(latitude), str(longitude)).transact({'from': self.user, 'gas': gas})
-
 # load environment variables
 load_dotenv()
 user_address = os.getenv("CONTRACT_USER_ADDRESS")
@@ -69,6 +49,7 @@ node_type = st.selectbox('Business Type', options=['primaryProducer', 'Storage',
 latitude = st.number_input('Business Latitude')
 longitude = st.number_input('Business Longitude')
 
-# Add inputed data to Contract
-if st.button("Add"):
-    if 
+# Read all data inputed above
+with st.sidebar("Loading Contract Details"):
+    with st.spinner("Loading Contract Details"):
+        contract_details = w3.eth.get_contract_details(contract, address)
