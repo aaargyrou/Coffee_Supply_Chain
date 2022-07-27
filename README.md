@@ -14,7 +14,7 @@
 This project aims to solve the problem of tracking the full supply chain from the production of coffee beans to the consumer hands.
 
 Utilising a Streamlit front end this supply chain tracks the transactions and movement of coffee beans from:
-* Harvestor
+* Harvester
 * Storage
 * Roaster
 * Retailer
@@ -23,7 +23,7 @@ Utilising a Streamlit front end this supply chain tracks the transactions and mo
 Ultimately allowing the end user (consumer) to scan a QR code enabling them to access the full history of the supply chain of a specific bag of coffee.
 
 
-`[insert diagram of flow structure from harvester to consumer]`
+![Flow Chart](./Images/flow_structure.png)
 
 
 ## Technologies Used
