@@ -95,16 +95,16 @@ contract coffeeChain is ERC721Full {
         );
     }
 
-    // transfers a batch NFT from one address to another, sets batch state to false after transfer (requires batch to be in the true state, owner cannot transfer)
-    function transferBatch(
-        address payable owner,
-        address to,
-        uint256 tokenId
-    ) public {
+    // transfers a batch NFT from one address to another and transfers eth to owner, sets batch state to false after transfer (requires batch to be in the true state)
+    function transferBatch(address payable owner, uint256 tokenId)
+        public
+        payable
+    {
         require(Batches[tokenId].state == true, "batch still processing");
-        owner.transfer(Batches[tokenId].value);
-        safeTransferFrom(owner, to, tokenId);
-        emit transfer(owner, to, tokenId);
+        require(msg.value == Batches[tokenId].value, "incorrect amount sent");
+        safeTransferFrom(owner, msg.sender, tokenId);
+        owner.transfer(msg.value);
+        emit transfer(owner, msg.sender, tokenId);
         Batches[tokenId].state = false;
     }
 
@@ -113,8 +113,16 @@ contract coffeeChain is ERC721Full {
         Batches[tokenId].state = state;
     }
 
+    function getBatchState(uint256 tokenId) public view returns (bool) {
+        return Batches[tokenId].state;
+    }
+
     // sets batch value
     function setBatchValue(uint256 value, uint256 tokenId) public onlyNode {
         Batches[tokenId].value = value;
+    }
+
+    function getBatchValue(uint256 tokenId) public view returns (uint256) {
+        return Batches[tokenId].value;
     }
 }

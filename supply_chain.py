@@ -1,6 +1,5 @@
 import json
 import pandas as pd
-import numpy as np
 from web3 import Web3
 from pathlib import Path
 from decimal import Decimal
@@ -53,11 +52,14 @@ class SupplyChainContract:
         for index, transaction in transactions.iterrows():
             #due to default false batch state, batch states need to be set to true before transactions occur
             self.set_batch_state(True, int(transaction[2]))
+
+            # approvals for transfer also need to be set to allow transfer of the NFT
+            self.approve_transfer(transaction[0], transaction[1], int(transaction[2]))
             self.transfer_batch(transaction[0], transaction[1], int(transaction[2]))
 
     def get_all_cooordinates(self, token_id):
         '''
-        Gets data from each node visited by a token. 
+        Gets coordinate data from each node visited by a token. 
 
         Args:
             token_id (int): unique token identificaiton number representing the batch
@@ -128,7 +130,7 @@ class SupplyChainContract:
             gas (int): maximum gas to consume during transaction
         '''
         batch_value = self.contract.functions.getBatchValue(token_id).call()
-        return self.contract.functions.transferBatch(owner, recipient, token_id).transact({'from': recipient, 'value': batch_value, 'gas': gas})
+        return self.contract.functions.transferBatch(owner, token_id).transact({'from': recipient, 'value':batch_value, 'gas': gas})
 
     def add_batch(self, creator_address, batch_uri, batch_value, batch_state = False, gas=1000000):
         '''
@@ -141,11 +143,17 @@ class SupplyChainContract:
             batch_state (bool): boolean value to determine if a batch is ready for transfer or not (true enables transfers, default to False)
         '''
         value_wei = Web3.toWei(Decimal(batch_value), 'ether')
-        return self.contract.functions.addBatch(creator_address, batch_uri, value_wei, batch_state).transact({'from': self.user, 'gas': gas})
+        return self.contract.functions.addBatch(creator_address, batch_uri, value_wei, batch_state).transact({'from': creator_address, 'gas': gas})
     
     def get_node(self, address):
         '''
-        returns json object containing information about a node associated with an ethereum address
+        get information about a node in the supplychain
+
+        Args:
+            address (string): 42-character hexadecimal address to the node
+        
+        Returns:
+            json object containing information about a node associated with an ethereum address
         '''
         return self.contract.functions.Nodes(address).call()
 
@@ -186,11 +194,39 @@ class SupplyChainContract:
         value_wei = Web3.toWei(Decimal(value), 'ether')
         return self.contract.functions.setBatchValue(value_wei, token_id).transact({'from': self.user, 'gas': gas})
     
-    def get_batch_value(self):
-        pass
+    def get_batch_value(self, token_id):
+        '''
+        gets the value of a batch
 
-    def get_batch_state(self):
-        pass
+        Args:
+            token_id (int): unique token identificaiton number representing the batch
+        
+        Returns:
+            float: value of batch in ETH.
+        '''
+        value_wei = self.contract.functions.getBatchValue(token_id).call()
 
-    def payout_for_batch(self):
-        pass
+        return Web3.fromWei(value_wei, 'ether')
+
+    def get_batch_state(self, token_id):
+        '''
+        gets the state of a batch to determine if the batch is ready for transfer or not.
+
+        Args:
+            token_id (int): unique token identificaiton number representing the batch
+        
+        Returns:
+            bool: state of a batch (true represents batch is ready for transfer)
+        '''
+        return self.contract.functions.getBatchState(token_id).call()
+
+    def approve_transfer(self, owner_address, address_to_approve, token_id, gas=1000000):
+        '''
+        allows a batch owner to approve a buyer for transfer of the batch to a new node
+
+        Args:
+            address (string): 42-character hexadecimal address to be approved
+            token_id (int): unique token identificaiton number representing the batch
+            gas (int): maximum gas to consume during transaction
+        '''
+        return self.contract.functions.approve(address_to_approve, token_id).transact({'from': owner_address, 'gas': gas})
