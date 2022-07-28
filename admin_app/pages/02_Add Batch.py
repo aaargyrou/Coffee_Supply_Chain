@@ -37,6 +37,27 @@ def contract_load():
 #Load the contract
 contract = contract_load()
 
+# Title
+st.markdown("---")
+st.title("Add Batch")
+st.markdown("---")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # QR Code 
 # QRcode functions
 
