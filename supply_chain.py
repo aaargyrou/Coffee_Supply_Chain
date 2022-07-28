@@ -7,13 +7,14 @@ from decimal import Decimal
 class SupplyChainContract:
     '''
     creates a w3.py contract object with additonal functionality for interacting with the supplychain smart contract.
-    User addresse determines accessable functions when calling transactional functions. Refer to the deployed smart contract for user permissions.
+    User address determines accessable functions when calling some of the transactional functions. 
+    Refer to the deployed smart contract for user permissions.
 
     Args:
         web3_provider_URI (string): HTTP URI to the web3 provider
         contract_json_path (string): path to the compiled contract abi.json
         deployed_address (string): 42-character hexadecimal address for the deployed contract
-        user_address (string):  42-character hexadecimal address forvthe user of the SupplyChainContract
+        user_address (string):  42-character hexadecimal address for the user of the SupplyChainContract
     '''
 
     def __init__ (self, web3_provider_URI, contract_json_path, deployed_address, user_address):
