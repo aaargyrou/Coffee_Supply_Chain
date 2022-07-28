@@ -61,6 +61,7 @@ if st.sidebar.button("View Details"):
 
 
 #TODO BUTTON TO LINK TO SMART CONTRACT AND STORE DATA IN THE BLOCKCHAIN
+
 #if st.sidebar.button("Add Business"):
 #    contract.functions.addNode(address, name, node_type, latitude, longitude).transact({'from': user_address})
 #    st.write("Business added")
