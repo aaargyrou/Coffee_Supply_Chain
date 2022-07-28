@@ -59,13 +59,13 @@ Because this webapp has been tested with hard coded testcases, running the popul
 
 The Addresses in the workspace should look as follows:
 
-![ganache_addresses](images/ganache_screenshot.png)
+![ganache_addresses](Images/ganache_screenshot.png)
 
 
 ## Deploying the contract
 After connecting a ganache address to metamask, the contract can be deployed on the testnet via remix and injected web3. To do this, [link ganache to metamask](https://dapp-world.com/blogs/01/how-to-connect-ganache-with-metamask-and-deploy-smart-contracts-on-remix-without-1619847868947), and import the contract.sol file into remix and deploy after compiling.
 
-![metamask](images/contract_deploy.png)
+![metamask](Images/contract_deploy.png)
 
 
 ## Environment variables
