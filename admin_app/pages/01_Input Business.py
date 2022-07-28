@@ -59,20 +59,14 @@ if st.sidebar.button("View Details"):
     # MAPBOX for Longitude and Latitude 
     st.map(df)
 
-
 #TODO BUTTON TO LINK TO SMART CONTRACT AND STORE DATA IN THE BLOCKCHAIN
 
-#if st.sidebar.button("Add Business"):
-#    contract.functions.addNode(address, name, node_type, latitude, longitude).transact({'from': user_address})
-#    st.write("Business added")
+if st.button("Add Business"):
+    if contract.functions.Nodes(address):
+        st.write("Business already exists")
+    else:
+        contract.functions.addNode(address, name, node_type, latitude, longitude).transact({'from': user_address})
+        st.write("Business added")
 
-
-
-# variables used in minting a batch
-# creator = st.selectbox("creator", options=addresses)
-# batch_uri = st.text_input("info or URI about batch")
-
-# button for transaction
-# if st.sidebar.button("mint a new batch NFT"):
-#    batch = coffee_contract.add_batch(creator, batch_uri)
-#    st.write(f'batch has been created!\n txn hash: {batch}')
+# Write tokenID
+# 

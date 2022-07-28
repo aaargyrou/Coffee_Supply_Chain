@@ -33,9 +33,6 @@ def contract_load():
 
 #Load the contract
 contract = contract_load()
-# streamlit section for testing NFT transfers
-st.sidebar.markdown("---")
-st.sidebar.markdown("send a batch to another address")
 
 # variables used in sending a batch
 owner = st.selectbox("address from", options=addresses)
@@ -44,6 +41,6 @@ batch_num = st.number_input("select batch", min_value=0)
 
 # button for transaction
 if st.button("send a batch"):
-    sent_batch = contract.transfer_batch(owner, to, batch_num)
+    sent_batch = contract.functions.transferBatch(owner, to, batch_num)
     if sent_batch:
         st.write(f'batch has been sent\n txn hash: {sent_batch}')
