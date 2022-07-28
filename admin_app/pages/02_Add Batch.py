@@ -1,19 +1,21 @@
+from audioop import add
 import os
 import json
 from web3 import Web3
 from pathlib import Path
 from dotenv import load_dotenv
 import streamlit as st
-    #pip install Pillow
+import pandas as pd
 from PIL import Image
-    #!pip install opencv-python
 import cv2
 import qrcode
+from decimal import Decimal
 
 load_dotenv()
-
-#Get contract
+user_address = os.getenv("CONTRACT_USER_ADDRESS")
 w3 = Web3(Web3.HTTPProvider(os.getenv("WEB3_PROVIDER_URI")))
+# Get a list of addresses on the testnet
+addresses = w3.eth.accounts
 
 #Cache and load main contract 
 @st.cache(allow_output_mutation=True)
@@ -34,29 +36,41 @@ def contract_load():
     )
     return contract
 
+
+
 #Load the contract
 contract = contract_load()
+df = pd.DataFrame()
 
 # Title
-st.markdown("---")
 st.title("Add Batch")
 st.markdown("---")
 
+# Input Batch Information
+gas = 1000000
 
+st.sidebar.text_input("Enter Batch Number")
+creator_address = st.sidebar.selectbox("owner address", options=addresses)
+batch_uri = st.sidebar.text_input("Batch URI")
+value_wei = st.sidebar.number_input("Enter Batch Value (wei)")
+batch_state = st.sidebar.selectbox("Batch State", [True, False])
 
+if st.sidebar.button("View Details"):
+    st.subheader("Contract Details")
+    df = df.append(
+        {'creator_address': creator_address, 
+            'batch_uri': batch_uri, 
+            'value_wei': value_wei, 
+            'batch_state': batch_state}, ignore_index=True)
+    st.write(df)
 
+# Button to add data to contract
+if st.button("Add Batch"):
+    # use addBatch function to add batch to contract
+    contract.functions.addBatch(creator_address, batch_uri, value_wei, batch_state).transact({'from': creator_address, 'gas': gas})
+    st.write("Batch added")
 
-
-
-
-
-
-
-
-
-
-
-
+#TODO value_wei = Web3.toWei(Decimal(value), 'ether')
 
 # QR Code 
 # QRcode functions
@@ -64,7 +78,7 @@ st.markdown("---")
 def generate_qrcode(input_str, file_name):
 #Generate QR code
     qr_img = qrcode.make(input_str)  
-#Save image file   
+    #Save image file   
     qr_img.save(file_name+'.png')
     file_name_ = file_name+'.png'
     return qr_img, file_name_
