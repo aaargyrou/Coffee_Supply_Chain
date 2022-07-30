@@ -24,6 +24,7 @@ import cv2
     #pip install Pillow
 from PIL import Image
 
+#NOTE: the code here was copied and split between 2 other .py files for streamlit
 
 ###Get contract
 # load environment variables
