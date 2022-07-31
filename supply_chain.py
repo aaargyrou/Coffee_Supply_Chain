@@ -39,9 +39,9 @@ class SupplyChainContract:
         """
         populates the testnet with mock data from the csv files (consumes gas)
         """
-        nodes = pd.read_csv('mock_data.csv', index_col= 'index')
-        batches = pd.read_csv('mock_batches.csv', index_col= 'index')
-        transactions = pd.read_csv('mock_transactions.csv', index_col='Index')
+        nodes = pd.read_csv('tests/test_nodes.csv', index_col= 'index')
+        batches = pd.read_csv('tests/test_batches.csv', index_col= 'index')
+        transactions = pd.read_csv('tests/test_transactions.csv', index_col='index')
 
         # Add all data in nodes to the testnet
         for index, node in nodes.iterrows():
