@@ -50,7 +50,7 @@ Ensure all technologies have been installed:
     pip install qrcode
     pip install web3
     pip install python-dotenv
-
+    pip install . (from src directory)
 ## Install Ganache
 Ganache has been used to test and validate transactions are performing correctly when using the webapp and to provide a local test net with addresses. 
 Ganache can be downloaded [here](https://trufflesuite.com/ganache/).
@@ -72,7 +72,7 @@ After connecting a ganache address to metamask, the contract can be deployed on 
 
 ## Environment variables
 in order to initilise the SupplyChainContract, the follwoing variables should be present in a .env 
-file.
+file in the main directory.
 
 WEB3_PROVIDER_URI="GANACHE_RPC_SERVER_ADDRESS"
 
