@@ -57,13 +57,15 @@ Ganache can be downloaded [here](https://trufflesuite.com/ganache/).
 
 Because this webapp has been tested with hard coded testcases, running the populate_supply_chain function requires a specific ganache workspace. This can be replicated by opening a new workspace, under accounts and keys enter the following Mnemonic: **profit garage machine open enact embody pigeon correct spread tribe improve token**
 
+**Warning: Do not use these addresses for testnet or Mainnet ethereum addresses, this is for testing purposes only.**
+
 The Addresses in the workspace should look as follows:
 
 ![ganache_addresses](Images/ganache_screenshot.png)
 
 
 ## Deploying the contract
-After connecting a ganache address to metamask, the contract can be deployed on the testnet via remix and injected web3. To do this, [link ganache to metamask](https://dapp-world.com/blogs/01/how-to-connect-ganache-with-metamask-and-deploy-smart-contracts-on-remix-without-1619847868947), and import the contract.sol file into remix and deploy after compiling.
+After connecting a ganache address to metamask, the contract can be deployed on the testnet via remix and injected web3. To do this, [link ganache to metamask](https://dapp-world.com/blogs/01/how-to-connect-ganache-with-metamask-and-deploy-smart-contracts-on-remix-without-1619847868947), and import the contract.sol file into remix and deploy after compiling. If the contract does not deploy, try resetting the account in the metamask settings to get the correct nonce value.
 
 ![metamask](Images/contract_deploy.png)
 
@@ -72,7 +74,7 @@ After connecting a ganache address to metamask, the contract can be deployed on 
 in order to initilise the SupplyChainContract, the follwoing variables should be present in a .env 
 file.
 
-WEB3_PROVIDER_URI="http://127.0.0.1:7545"
+WEB3_PROVIDER_URI="GANACHE_RPC_SERVER_ADDRESS"
 
 SMART_CONTRACT_ADDRESS="ADDRESS_OF_DEPLOYED_SMART_CONTRACT"
 
