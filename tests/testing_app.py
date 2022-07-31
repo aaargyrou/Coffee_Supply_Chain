@@ -8,7 +8,7 @@ load_dotenv()
 w3_providerURI = os.getenv("WEB3_PROVIDER_URI")
 contract_address = os.getenv("SMART_CONTRACT_ADDRESS")
 user_address = os.getenv("CONTRACT_USER_ADDRESS")
-path_to_contract = './contracts/compiled/coffeeChain.json'
+path_to_contract = '../contracts/compiled/coffeeChain.json'
 
 # Init supply chain contract
 coffee_contract = SupplyChainContract(
@@ -24,7 +24,7 @@ addresses = coffee_contract.w3_provider.eth.accounts
 # populate whole contract with test data
 st.sidebar.markdown("Populate the blockchain with testing data")
 if st.sidebar.button("populate with data"):
-    coffee_contract.populate_supply_chain()
+    coffee_contract.populate_supply_chain('test_nodes.csv', 'test_batches.csv','test_transactions.csv')
 
 # streamlit section for testing nodes
 st.sidebar.markdown("---")
