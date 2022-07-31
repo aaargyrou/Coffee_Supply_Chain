@@ -24,7 +24,7 @@ addresses = coffee_contract.w3_provider.eth.accounts
 # populate whole contract with test data
 st.sidebar.markdown("Populate the blockchain with testing data")
 if st.sidebar.button("populate with data"):
-    coffee_contract.populate_supply_chain('test_nodes.csv', 'test_batches.csv','test_transactions.csv')
+    coffee_contract.populate_supply_chain('../tests/test_nodes.csv', '../tests/test_batches.csv','../tests/test_transactions.csv')
 
 # streamlit section for testing nodes
 st.sidebar.markdown("---")
