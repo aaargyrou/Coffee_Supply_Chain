@@ -33,7 +33,7 @@ load_dotenv()
 w3_providerURI = os.getenv("WEB3_PROVIDER_URI")
 contract_address = os.getenv("SMART_CONTRACT_ADDRESS")
 user_address = os.getenv("CONTRACT_USER_ADDRESS")
-path_to_contract = './contracts/compiled/coffeeChain.json'
+path_to_contract = '../contracts/compiled/coffeeChain.json'
 
 # Init supply chain contract
 coffee_contract = SupplyChainContract(
