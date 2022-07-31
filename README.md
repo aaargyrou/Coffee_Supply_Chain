@@ -50,6 +50,12 @@ Ensure all technologies have been installed:
     pip install qrcode
     pip install web3
     pip install python-dotenv
+    pip install opencv-python
+    pip install Pillow
+    pip install pathlib
+    pip install pandas
+    pip install numpy
+
 
 ## Install Ganache
 Ganache has been used to test and validate transactions are performing correctly when using the webapp and to provide a local test net with addresses. 
@@ -90,3 +96,4 @@ Run the Streamlit Application
 
     streamlit run app.py
 
+(note: keanu_streamlit_frontend.py file runs on its own, py_extra_codes contains 2 split in half sections (that run independantly) from the 'keanu_streamlit_frontend.py' file, as the code was required for 2 seperate apps. Admin App and Customer App)
