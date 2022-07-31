@@ -10,6 +10,7 @@ from PIL import Image
 import cv2
 import qrcode
 from decimal import Decimal
+from supply_chain import SupplyChainContract
 
 load_dotenv()
 user_address = os.getenv("CONTRACT_USER_ADDRESS")
@@ -72,13 +73,12 @@ if st.button("Add Batch"):
 
 #TODO value_wei = Web3.toWei(Decimal(value), 'ether')
 
-# QR Code 
-# QRcode functions
 
+################################################################
 def generate_qrcode(input_str, file_name):
 #Generate QR code
     qr_img = qrcode.make(input_str)  
-    #Save image file   
+#Save image file   
     qr_img.save(file_name+'.png')
     file_name_ = file_name+'.png'
     return qr_img, file_name_
@@ -109,14 +109,20 @@ def read_qrcode(file_name):
 
 
 #Streamlit QR code generator inputs and buttons
-st.subheader('Generate QR code')
+
+### potentually change QR code inputs to token ids or any backend data
+st.markdown('# QR code Website')
 qr_code_content = st.text_input('Enter Streamlit Web App link')
 qr_code_filename = st.text_input('QR code "File Name"')
 
 qr_CODE = generate_qrcode(qr_code_content, qr_code_filename)
 
-#Streamlit web app QR code button functions,
-button1, button2, button3, button4 = st.columns([1,1,1,1,])
+#save file name as a csv to be accessed by the customer app
+file_name_data = pd.DataFrame({'data': [qr_code_filename]})
+file_name_data.to_csv('file_name.csv', index=False) ##Saved csv LOCATION is important as customer_frontend app must access the data
+
+#Streamlit web app QR code button functions
+button1, button2 = st.columns([1,1])
 
 with button1:
     show_qrcode() #show qr code that was generated
@@ -125,32 +131,4 @@ with button2: #read qr code button row
     if st.button('Read last QR code'):
         st.write(read_qrcode(file_name=qr_CODE[1])) #read the qr code
 
-
-##NOT completed:
-with button3:
-    #Generate QR code
-    #info = read_qrcode(file_name=qr_CODE[1])
-    #qr_img = qrcode.make(info)  
-    
-
-    if st.button('Download'): #NOT WORKING YET
-        #imageb = Image.open(qr_CODE[1])
-        #b = bytearray(imageb)
-        #st.download_button('Download', b, file_name='QR_code')
-    
-        st.write('error occured')
-
-
-
-with button4:
-    if st.button('Coffee?'):
-        st.balloons()
-        st.write('Coffeeeeee!')
-
-#upload file section
-#uploaded_file = st.file_uploader("Upload QR Code")
-
-#if uploaded_file is not None:
-#not working
-#upload, save upload(qr code generator code), reconvert it (read qr code code)
 ######################################
