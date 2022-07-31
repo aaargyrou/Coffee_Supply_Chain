@@ -31,10 +31,11 @@ from PIL import Image
 load_dotenv()
 w3_providerURI = os.getenv("WEB3_PROVIDER_URI")
 contract_address = os.getenv("SMART_CONTRACT_ADDRESS")
-path_to_contract = './contracts/compiled/coffeeChain.json'
+user_address = os.getenv("CONTRACT_USER_ADDRESS")
+path_to_contract = '../contracts/compiled/coffeeChain.json'
 
 # Init supply chain contract
-coffee_contract = SupplyChainContract(w3_providerURI, path_to_contract, contract_address)
+coffee_contract = SupplyChainContract(w3_providerURI, path_to_contract, contract_address, user_address)
 
 # list of addresses on the testnet
 addresses = coffee_contract.w3_provider.eth.accounts
@@ -197,7 +198,7 @@ def read_qrcode(file_name):
 
 #Coffee code
 st.markdown('# Customer and the supply chain')
-image = Image.open('images/coffeeee.jpeg')
+image = Image.open('../Images/coffeeee.jpeg')
 st.image(image)
 
 #Streamlit QR code generator inputs and buttons
