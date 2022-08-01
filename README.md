@@ -101,7 +101,7 @@ Run the Streamlit Application:
     #Customer App
     streamlit run The_Coffee_Supply_Chain.py
     #Admin App
-    streamlit run admin_app.py
+    streamlit run Admin_App.py
 
 ---
 
@@ -115,3 +115,22 @@ The Admin User Inferface is a simple webapp that allows the user to:
 * Add a new batch of coffee to the supply chain
 * Transfer the batch of coffee to the next stage of the supply chain
 * View the current state of the supply chain
+
+
+### **Input Business Page**
+The input business page allows the user to add a new business to the supply chain.
+
+Input Business Sidebar             |  Input Business View Details
+:-------------------------:|:-------------------------:
+![Input Sidebar](Images/admin_input_sidebar.png)   |  ![View Details](Images/admin_input_viewdetails.png)
+
+Once you have confirmed your business detials select the `Add Business` button to add the business to the Blockchain.
+
+### **Add Batch**
+The `Add Batch` page allows the user to add a new batch of coffee to the supply chain.
+
+![Add Batch](Images/admin_addbatch.png)
+
+Once you have confirmed your batch details select the `Add Batch` button to add the batch to the Blockchain. This will provide you with a Transaction Hash.
+
+A QR Code will be generated containing the token ID and Transaction Hash.
