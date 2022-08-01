@@ -72,6 +72,7 @@ batch_num = st.sidebar.number_input("select batch", min_value=0)
 
 # button for transaction
 if st.sidebar.button("send a batch"):
+    coffee_contract.approve_transfer(owner, to, batch_num)
     sent_batch = coffee_contract.transfer_batch(owner, to, batch_num)
     if sent_batch:
         st.write(f'batch has been sent\n txn hash: {sent_batch}')
@@ -86,6 +87,7 @@ token = st.sidebar.number_input("select a token to view events", min_value=0)
 
 # button to view all nodes a batch has passed through
 if st.sidebar.button("view the coffee history"):
+    
     addresses = coffee_contract.get_transfer_addresses(token)
     for address in addresses:
         node_from = coffee_contract.get_node(address[0])

@@ -24,7 +24,6 @@ contract = SupplyChainContract(
 # list of addresses on the testnet
 addresses = contract.w3_provider.eth.accounts
 
-
 # Title (Transfer Coffee Batch)
 st.title("Transfer Coffee Batch")
 st.markdown("---")
@@ -34,6 +33,15 @@ owner = st.selectbox("Your Address", options=addresses)
 to = st.selectbox("Send to address", options=addresses)
 # Select a batch to transfer
 batch_num = st.number_input("Batch Number", min_value=0)
+
+# Button to view transaction details
+if st.button("Approve transfer of a batch"):
+    approval = contract.approve_transfer(owner, to, batch_num)
+    if approval:
+        st.write(f'Batch has been sent\n txn hash: {approval}')
+    else:
+        st.write("Batch not sent")
+
 
 # Button to view transaction details
 if st.button("Send Coffee Batch"):
