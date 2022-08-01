@@ -122,6 +122,6 @@ with button2: #read qr code button row
 
 with button3:
     if st.button('Coffee?'):
+        coffee_contract.populate_supply_chain('../tests/test_nodes.csv', '../tests/test_batches.csv','../tests/test_transactions.csv')
         st.balloons()
         st.write('Coffeeeeee!')
-
