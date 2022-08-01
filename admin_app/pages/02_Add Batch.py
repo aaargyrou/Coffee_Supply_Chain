@@ -43,14 +43,12 @@ batch_uri = st.sidebar.text_input("Batch URI")
 value_eth = st.sidebar.number_input("Enter Batch Value (ETH)")
 batch_state = st.sidebar.selectbox("Batch State", [True, False])
 
-value_wei = Web3.toWei(Decimal(value_eth), 'ether')
-
 if st.sidebar.button("View Details"):
     st.subheader("Contract Details")
     df = df.append(
         {'creator_address': creator_address, 
             'batch_uri': batch_uri, 
-            'value_wei': value_wei,
+            'value_wei': value_eth,
             'batch_state': batch_state}, ignore_index=True)
     st.write(df)
 
@@ -60,9 +58,9 @@ if st.button("Add Batch"):
     df = df.append(
         {'creator_address': creator_address, 
             'batch_uri': batch_uri, 
-            'value_wei': value_wei,
+            'value_wei': value_eth,
             'batch_state': batch_state}, ignore_index=True)
-    batch = contract.add_batch(creator_address, batch_uri, value_wei, batch_state)
+    batch = contract.add_batch(creator_address, batch_uri, value_eth, batch_state)
     st.write(df)
     st.write(f'Batch has been created!\n txn hash: {batch}')
 
