@@ -1,4 +1,4 @@
-# Coffee_Supply_Chain - DRAFT README.md
+# Coffee_Supply_Chain
 
 ## Contents
 1. [Overview of the Project](#overview-of-the-project)
@@ -11,7 +11,7 @@
 ---
 ## Overview of the Project
 
-This project aims to solve the problem of tracking the full supply chain from the production of coffee beans to the consumer hands.
+This project aims to track the full supply chain from the production of coffee beans to the consumer hands utilising the capabilities of Solidity Smart Contracts, Web3 and the Ethereum Blockchain. 
 
 Utilising a Streamlit front end this supply chain tracks the transactions and movement of coffee beans from:
 * Harvester
@@ -20,11 +20,17 @@ Utilising a Streamlit front end this supply chain tracks the transactions and mo
 * Retailer
 * Consumer
 
-Ultimately allowing the end user (consumer) to scan a QR code enabling them to access the full history of the supply chain of a specific bag of coffee.
-
+The chart below depicts the physical movement of the coffee beans from Producer to Consumer and how the transactions recorded in the Smart Contract and Blockchain run parrallel. 
 
 ![Flow Chart](./Images/flow_structure.png)
 
+
+## Project Goals
+* Improve dissemination of information throughout the supply chain.
+* Enable traceability for products that end up in the consumers hands.
+* Take a step closer to an economy where stake holders have more knowledge and  control over where their money is going.
+
+---
 
 ## Technologies Used
 
@@ -79,14 +85,33 @@ WEB3_PROVIDER_URI="GANACHE_RPC_SERVER_ADDRESS"
 SMART_CONTRACT_ADDRESS="ADDRESS_OF_DEPLOYED_SMART_CONTRACT"
 
 CONTRACT_USER_ADDRESS = "ADDRESS_USED_TO_DEPLOY_THE_CONTRACT"
+
 ## Utilising the User Interface
 **A step by step series of examples on how to use this application:**
 
-Navigate to the folder
+Navigate to the folder:
 
     cd Coffee_Supply_Chain
+    cd consumer_app # This is the folder that contains the consumer_app.py file
+    cd admin_app # This is the folder that contains the admin_app.py file
 
-Run the Streamlit Application
 
-    streamlit run app.py
+Run the Streamlit Application:
 
+    #Customer App
+    streamlit run The_Coffee_Supply_Chain.py
+    #Admin App
+    streamlit run admin_app.py
+
+---
+
+## Customer App User Interface
+
+
+---
+## Admin App User Interface
+The Admin User Inferface is a simple webapp that allows the user to:
+* Add a new Business to the supply chain
+* Add a new batch of coffee to the supply chain
+* Transfer the batch of coffee to the next stage of the supply chain
+* View the current state of the supply chain
