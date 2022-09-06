@@ -53,6 +53,8 @@ The chart below depicts the physical movement of the coffee beans from Producer 
 Ensure all technologies have been installed:
 
     pip install streamlit
+    pip install streamlit-option-menu
+    pip install leafmap
     pip install qrcode
     pip install web3
     pip install python-dotenv
