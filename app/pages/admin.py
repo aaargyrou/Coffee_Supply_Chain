@@ -91,6 +91,7 @@ if selected == "Nodes":
         address = st.selectbox("Business ETH address", options=addresses)
         batches = contract.all_batches_owned_by(address)
         for batch_num in batches:
+            st.write(f"Batch number: {batch_num}")
             st.write(contract.get_batch_info(batch_num))
 
 
@@ -102,8 +103,8 @@ if selected == "Batches":
             "Approve purchase",
             "Purchase batch",
             "View batch details",
-            "Generate QR code",
             "Modify batch",
+            "Generate QR code",
         ],
         orientation="horizontal",
     )
@@ -185,19 +186,12 @@ if selected == "Batches":
 
     if batch_action == "View batch details":
         batch_num = st.number_input("Select a batch number to view", min_value=0)
-
-        addresses = contract.get_transfer_addresses(batch_num)
-        for address in addresses:
-            node_from = contract.get_node(address[0])
-            node_to = contract.get_node(address[1])
-
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.write(node_from)
-            with col2:
-                st.markdown("# -->")
-            with col3:
-                st.write(node_to)
+        batch_info = contract.get_batch_info(batch_num)[0]
+        batch_owner = contract.get_batch_owner(batch_num)
+        batch_value = contract.get_batch_value(batch_num)
+        st.write(f"Batch owner: {batch_owner}")
+        st.write(f"Batch Info: {batch_info}")
+        st.write(f"Batch value (ETH): {batch_value}")
 
     if batch_action == "Generate QR code":
         # qr_code_content select box with batch's data
