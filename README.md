@@ -88,51 +88,26 @@ SMART_CONTRACT_ADDRESS="ADDRESS_OF_DEPLOYED_SMART_CONTRACT"
 
 CONTRACT_USER_ADDRESS = "ADDRESS_USED_TO_DEPLOY_THE_CONTRACT"
 
+OPEN_WEATHER_MAP_API_KEY = "API_KEY_FOR_OPEN_WEATHER_MAP"
+
 ## Utilising the User Interface
 **A step by step series of examples on how to use this application:**
 
-Navigate to the folder:
+    cd app
+    conda activate env
+    streamlit run app.py
 
-    cd Coffee_Supply_Chain
-    cd consumer_app # This is the folder that contains the consumer_app.py file
-    cd admin_app # This is the folder that contains the admin_app.py file
+---
+## App User Interface
+User Inferface is a simple webapp that allows the user to:
+* view information stored on the smart contract
+* interact with the smart contract
 
 
-Run the Streamlit Application:
-
-    #Customer App
-    streamlit run The_Coffee_Supply_Chain.py
-    #Admin App
-    streamlit run Admin_App.py
+![Admin](Images/Admin.png)
 
 ---
 
-## Customer App User Interface
+The consumer view allows the user to interact and view NFT origin via map interface.
 
-
----
-## Admin App User Interface
-The Admin User Inferface is a simple webapp that allows the user to:
-* Add a new Business to the supply chain
-* Add a new batch of coffee to the supply chain
-* Transfer the batch of coffee to the next stage of the supply chain
-* View the current state of the supply chain
-
-
-### **Input Business Page**
-The input business page allows the user to add a new business to the supply chain.
-
-Input Business Sidebar             |  Input Business View Details
-:-------------------------:|:-------------------------:
-![Input Sidebar](Images/admin_input_sidebar.png)   |  ![View Details](Images/admin_input_viewdetails.png)
-
-Once you have confirmed your business detials select the `Add Business` button to add the business to the Blockchain.
-
-### **Add Batch**
-The `Add Batch` page allows the user to add a new batch of coffee to the supply chain.
-
-![Add Batch](Images/admin_addbatch.png)
-
-Once you have confirmed your batch details select the `Add Batch` button to add the batch to the Blockchain. This will provide you with a Transaction Hash.
-
-A QR Code will be generated containing the token ID and Transaction Hash.
+![Consumer](Images/Consumer.png)
