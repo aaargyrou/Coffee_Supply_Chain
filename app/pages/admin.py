@@ -9,6 +9,7 @@ import qrcode
 import cv2
 from PIL import Image
 import time
+import webbrowser
 
 # load environment vairables
 load_dotenv()
@@ -89,11 +90,9 @@ if selected == "Nodes":
 
     if node_action == "Batches owned by node":
         address = st.selectbox("Business ETH address", options=addresses)
-        batches = contract.all_batches_owned_by(address)
-        for batch_num in batches:
-            st.write(f"Batch number: {batch_num}")
-            st.write(contract.get_batch_info(batch_num))
-
+        batches = st.selectbox(
+            "Select a batch", options=contract.all_batches_owned_by(address)
+        )
 
 if selected == "Batches":
     batch_action = option_menu(
@@ -102,8 +101,7 @@ if selected == "Batches":
             "Add batch",
             "Approve purchase",
             "Purchase batch",
-            "View batch details",
-            "Modify batch",
+            "Batch details",
             "Generate QR code",
         ],
         orientation="horizontal",
@@ -117,8 +115,6 @@ if selected == "Batches":
         st.markdown("---")
 
         # Input Batch Information
-        gas = 1000000
-
         creator_address = st.selectbox("owner address", options=addresses)
         batch_uri = st.text_input("Batch URI")
         value_eth = st.number_input("Enter Batch Value (ETH)")
@@ -184,14 +180,27 @@ if selected == "Batches":
                 "Batch not approved for sending, please check details and try again."
             )
 
-    if batch_action == "View batch details":
+    if batch_action == "Batch details":
         batch_num = st.number_input("Select a batch number to view", min_value=0)
-        batch_info = contract.get_batch_info(batch_num)[0]
         batch_owner = contract.get_batch_owner(batch_num)
         batch_value = contract.get_batch_value(batch_num)
-        st.write(f"Batch owner: {batch_owner}")
-        st.write(f"Batch Info: {batch_info}")
-        st.write(f"Batch value (ETH): {batch_value}")
+        batch_uri = contract.get_batch_URI(batch_num)
+        st.write(f"Current owner: {batch_owner}")
+        st.write(f"Current value (ETH): {batch_value}")
+
+        if st.button("View information"):
+            uri = contract.get_batch_URI(batch_num)
+            webbrowser.open_new_tab(uri)
+
+        batch_value = st.number_input("Update value (ETH)", min_value=0)
+        if st.button("Update batch value"):
+            contract.set_batch_value(batch_value, batch_num)
+            st.write("Batch details successfully updated!")
+
+        batch_state = st.selectbox("Change processing state", [True, False])
+        if st.button("Update processing state"):
+            contract.set_batch_state(batch_state, batch_num)
+            st.write("Batch details successfully updated!")
 
     if batch_action == "Generate QR code":
         # qr_code_content select box with batch's data
@@ -201,20 +210,3 @@ if selected == "Batches":
             qr_img = qrcode.make(batch_num)
             st_image = Image.open(qr_img)
             st.image(st_image)
-
-    if batch_action == "Modify batch":
-        batch_num = st.number_input("Select a batch number", min_value=0)
-
-        # show current batch information
-        current_batch_info = contract.get_batch_info(batch_num)
-        st.write(current_batch_info)
-
-        batch_value = st.number_input("New batch value (ETH)", min_value=0)
-        batch_state = st.selectbox("is the batch finished processing?", [True, False])
-
-        if st.button("Update batch value"):
-            contract.set_batch_value(batch_value, batch_num)
-            contract.set_batch_state(batch_state, batch_num)
-            st.write("Batch details successfully updated!")
-            current_batch_info = contract.get_batch_info(batch_num)
-            st.write(current_batch_info)

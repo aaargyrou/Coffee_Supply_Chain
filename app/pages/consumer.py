@@ -40,10 +40,10 @@ selected = option_menu(
 batch_num = st.number_input("Which batch would you like to track?", min_value=0)
 
 if selected == "Map":
-    map = leafmap.Map(center=[0, 0], zoom=2)
+    map = leafmap.Map(center=[-37.8136, 144.9631], zoom=7)
     geojson = contract.batch_geoJSON(batch_num)
     coords = contract.get_all_cooordinates(batch_num)
-    map.add_geojson(geojson, layer_name="Countries")
+    map.add_geojson(geojson, layer_name="supply lines")
     map.to_streamlit(height=700)
 
 if selected == "Info":
