@@ -1,19 +1,19 @@
-from asyncio.unix_events import BaseChildWatcher
-import streamlit as st
-import pandas as pd
-import os
-from dotenv import load_dotenv
+# UI/web packages
+import webbrowser
 import streamlit as st
 from streamlit_option_menu import option_menu
-import json
-from web3 import Web3
-from PIL import Image
-from supply_chain import SupplyChainContract
-import qrcode
-import cv2
-import json
 import requests
+from web3 import Web3
 import leafmap.foliumap as leafmap
+
+# backend/data structures
+import pandas as pd
+import json
+from supply_chain import SupplyChainContract
+
+# os and env variables
+import os
+from dotenv import load_dotenv
 
 # load environment variables
 load_dotenv()
@@ -43,10 +43,14 @@ if selected == "Map":
     map = leafmap.Map(center=[0, 0], zoom=2)
     geojson = contract.batch_geoJSON(batch_num)
     coords = contract.get_all_cooordinates(batch_num)
-    map.add_geojson(geojson, layer_name="supply lines")
+    map.add_geojson(geojson, layer_name="Countries")
     map.to_streamlit(height=700)
 
 if selected == "Info":
+    if st.button("open information for the batch in a new tab"):
+        uri = contract.get_batch_URI(batch_num)
+        webbrowser.open_new_tab(uri)
+
     addresses = contract.get_transfer_addresses(batch_num)
     for address in addresses:
         node_from = contract.get_node(address[0])

@@ -38,34 +38,6 @@ class SupplyChainContract:
         # return w3 contract object
         return self.w3_provider.eth.contract(address=self.address, abi=contract_abi)
 
-    def populate_supply_chain(self, node_data_path, batch_data_path, txn_data_path):
-        """
-        populates the testnet with mock data from the csv files (consumes gas)
-
-        Args:
-            node_data_path (string): path to node data csv, columns=[index, Business_names, Business_adresses, Latitude, Longitude, node_type]
-            batch_data_path (string): path to batch data csv, column=[index, Creator_address, URI, Value, State]
-            txn_data_path (string): path to transaction data csv, columns=[index, From_address, To_address, batch_num]
-        """
-        nodes = pd.read_csv(node_data_path, index_col="index")
-        batches = pd.read_csv(batch_data_path, index_col="index")
-        transactions = pd.read_csv(txn_data_path, index_col="index")
-
-        # Add all data in nodes to the testnet
-        for index, node in nodes.iterrows():
-            self.add_node(node[1], node[0], node[4], node[2], node[3])
-
-        for index, batch in batches.iterrows():
-            self.add_batch(batch[0], batch[1], batch[2], batch[3])
-
-        for index, transaction in transactions.iterrows():
-            # due to default false batch state, batch states need to be set to true before transactions occur
-            self.set_batch_state(True, int(transaction[2]))
-
-            # approvals for transfer also need to be set to allow transfer of the NFT
-            self.approve_transfer(transaction[0], transaction[1], int(transaction[2]))
-            self.transfer_batch(transaction[0], transaction[1], int(transaction[2]))
-
     def get_all_cooordinates(self, token_id):
         """
         Gets coordinate data from each node visited by a token.
@@ -102,14 +74,14 @@ class SupplyChainContract:
             coordinates.append((float(node_data[2]), float(node_data[3])))
         return coordinates
 
-    def get_batch_info(self, token_id):
+    def get_batch_URI(self, token_id):
         """
         gets the URI information about a batch.
 
         Args:
             token_id (int): unique token identificaiton number representing the batch
         """
-        return self.contract.functions.Batches(token_id).call()
+        return self.contract.functions.tokenURI(token_id).call()
 
     def get_transfer_addresses(self, token_id):
         """

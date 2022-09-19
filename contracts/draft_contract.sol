@@ -22,7 +22,6 @@ contract coffeeChain is ERC721Full {
     }
 
     struct Batch {
-        string batchURI;
         uint256 value;
         bool state;
     }
@@ -62,7 +61,7 @@ contract coffeeChain is ERC721Full {
         _;
     }
 
-    //--------Functions--------
+    //--------Node and Batch Functions--------
 
     // adds a batch to the Batches mapping and mints the respective NFT token under the owner address. (requires admin or node rights)
     function addBatch(
@@ -74,7 +73,7 @@ contract coffeeChain is ERC721Full {
         uint256 tokenId = totalSupply();
         _mint(owner, tokenId);
         _setTokenURI(tokenId, tokenURI);
-        Batches[tokenId] = Batch(tokenURI, value, readyForShipping);
+        Batches[tokenId] = Batch(value, readyForShipping);
         return tokenId;
     }
 
@@ -107,6 +106,8 @@ contract coffeeChain is ERC721Full {
         emit transfer(owner, msg.sender, tokenId);
         Batches[tokenId].state = false;
     }
+
+    //--------Setters and Getters--------
 
     // changes batch to desired state.
     function setBatchState(bool state, uint256 tokenId) public adminOrNode {
