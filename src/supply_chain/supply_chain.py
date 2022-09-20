@@ -1,3 +1,4 @@
+import re
 import json
 import pandas as pd
 from web3 import Web3
@@ -73,6 +74,72 @@ class SupplyChainContract:
             ).call()
             coordinates.append((float(node_data[2]), float(node_data[3])))
         return coordinates
+
+    def get_transfer_logs(self, token_id):
+        """
+        Gets the logs for transfers for a tokenId.
+
+        Args:
+            token_id (int): unique token identificaiton number representing the batch
+        Returns:
+            dict of logs from the Transfers event filtered by tokenId
+        """
+        logs = self.contract.events.Transfer.getLogs(
+            fromBlock=0, argument_filters={"tokenId": token_id}
+        )
+        return logs
+
+    def get_transfer_transactions(self, token_id):
+        """
+        builds a pandas dataframe of all Transactions for a batch
+
+        Args:
+            token_id (int): unique token identificaiton number representing the batch
+        Returns:
+            pands dataframe of all transactions from the Transfers event filtered by tokenId
+        """
+        df = pd.DataFrame()
+        logs = self.get_transfer_logs(token_id)
+
+        for log in logs:
+            txn_hash = log["transactionHash"]
+            txn = pd.DataFrame([self.w3_provider.eth.getTransaction(txn_hash)])
+            df = df.append(txn)
+        return df
+
+    def get_transfer_receipts(self, token_id):
+        """
+        builds a pandas dataframe of all Transaction receipts for a batch
+
+        Args:
+            token_id (int): unique token identificaiton number representing the batch
+        Returns:
+            pands dataframe of all transaction receipts from the Transfers event filtered by tokenId
+        """
+        df = pd.DataFrame()
+        logs = self.get_transfer_logs(token_id)
+
+        for log in logs:
+            rcp_hash = log["transactionHash"]
+            rcp = pd.DataFrame([self.w3_provider.eth.getTransactionReceipt(rcp_hash)])
+            df = df.append(rcp)
+        return df
+
+    def value_breakdown(self, token_id):
+        """
+        combines transaction values and transaction receipts to see batch and gas value for all transactions associated with a transfer, filtered by batch.
+
+        Args:
+            token_id (int): unique token identificaiton number representing the batch
+        Returns:
+            pands dataframe of values and gas costs filtered by tokenId
+        """
+        tnf = self.get_transfer_transactions(token_id)
+        rcp = self.get_transfer_receipts(token_id)
+        val = tnf[["from", "hash", "value"]].set_index("hash")
+        gas = rcp[["transactionHash", "gasUsed"]].set_index("transactionHash")
+        values = pd.concat([val, gas], join="inner", axis=1)
+        return values
 
     def get_batch_URI(self, token_id):
         """
