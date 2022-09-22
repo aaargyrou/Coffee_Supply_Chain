@@ -4,18 +4,9 @@ import streamlit as st
 import webbrowser
 from dotenv import load_dotenv
 from supply_chain import SupplyChainContract
+import matplotlib.pyplot as plt
 
-# load environment vairables
-load_dotenv()
-w3_providerURI = os.getenv("WEB3_PROVIDER_URI")
-contract_address = os.getenv("SMART_CONTRACT_ADDRESS")
-user_address = os.getenv("CONTRACT_USER_ADDRESS")
-path_to_contract = "../contracts/compiled/coffeeChain.json"
-
-# Init supply chain contract
-contract = SupplyChainContract(
-    w3_providerURI, path_to_contract, contract_address, user_address
-)
+contract = st.session_state.contract
 
 # Read QR code function
 def read_qrcode(file_name):
@@ -35,14 +26,6 @@ def read_qrcode(file_name):
 
 
 def test_nodes():
-    """
-    populates the testnet with test data from the csv files
-
-    Args:
-        node_data_path (string): path to node data csv, columns=[index, Business_names, Business_adresses, Latitude, Longitude, node_type]
-        batch_data_path (string): path to batch data csv, column=[index, Creator_address, URI, Value, State]
-        txn_data_path (string): path to transaction data csv, columns=[index, From_address, To_address, batch_num]
-    """
     nodes = pd.read_csv("../tests/test_nodes.csv", index_col="index")
 
     # Add all data in nodes to the testnet
@@ -61,19 +44,20 @@ def test_transactions():
     for index, transaction in transactions.iterrows():
         # due to default false batch state, batch states need to be set to true before transactions occur
         contract.set_batch_state(True, int(transaction[2]))
+        contract.set_batch_value(transaction[3], int(transaction[2]))
 
         # approvals for transfer also need to be set to allow transfer of the NFT
         contract.approve_transfer(transaction[0], transaction[1], int(transaction[2]))
         contract.transfer_batch(transaction[0], transaction[1], int(transaction[2]))
 
 
-if st.button("Test all"):
+if st.button("test cache"):
+    st.write(contract)
+
+
+if st.button("Run tests"):
     test_nodes()
     test_batches()
     test_transactions()
     st.balloons()
     st.write("Coffeeeeee!")
-
-if st.button("get uri for batch 0"):
-    uri = contract.get_batch_URI(0)
-    webbrowser.open_new_tab(uri)

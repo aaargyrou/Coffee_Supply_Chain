@@ -39,23 +39,19 @@ class SupplyChainContract:
         # return w3 contract object
         return self.w3_provider.eth.contract(address=self.address, abi=contract_abi)
 
-    def get_all_cooordinates(self, token_id):
+    def map_data(self, token_id):
         """
-        Gets coordinate data from each node visited by a token.
+        Gets map data from each node visited by a token.
 
         Args:
             token_id (int): unique token identificaiton number representing the batch
         Returns:
-            A list of tuples with values linked chronologically, each tuple represents a coordinate.
+            A pandas dataframe containing node info in chronological order.
         """
-        # create a filter and get all entries filtered by token number
-        token_filter = self.contract.events.transfer.createFilter(
-            fromBlock=0, argument_filters={"tokenId": token_id}
-        )
-        filtered_events = token_filter.get_all_entries()
+        filtered_events = self.get_filtered_events(token_id)
 
         # init empty list to hold coordinate tuples.
-        coordinates = []
+        map_data = []
 
         # loop through all filtered events
         for x, event in enumerate(filtered_events):
@@ -63,17 +59,38 @@ class SupplyChainContract:
 
             # because the solidity events trigger only when a transfer happens, we need to access the first node by reading the 'transferFrom' variable.
             if x == 0:
-                first_node = self.contract.functions.Nodes(
+                node_data = self.contract.functions.Nodes(
                     event_dict["args"]["transferFrom"]
                 ).call()
-                coordinates.append((float(first_node[2]), float(first_node[3])))
+                map_data.append(node_data)
 
             # append the reamining values of the event_dict
             node_data = self.contract.functions.Nodes(
                 event_dict["args"]["transferTo"]
             ).call()
-            coordinates.append((float(node_data[2]), float(node_data[3])))
-        return coordinates
+            map_data.append(node_data)
+
+        map_data = (
+            pd.DataFrame(map_data)
+            .rename(columns={0: "name", 1: "category", 2: "latitude", 3: "longitude"})
+            .drop(columns=[4])
+        )
+        return map_data.astype({"latitude": float, "longitude": float})
+
+    def get_filtered_events(self, token_id):
+        """
+        Gets the events for transfers for a tokenId.
+
+        Args:
+            token_id (int): unique token identificaiton number representing the batch
+        Returns:
+            dict of events from the Transfers event filtered by tokenId
+        """
+        # create a filter and get all entries filtered by token number
+        token_filter = self.contract.events.transfer.createFilter(
+            fromBlock=0, argument_filters={"tokenId": token_id}
+        )
+        return token_filter.get_all_entries()
 
     def get_transfer_logs(self, token_id):
         """
@@ -157,18 +174,14 @@ class SupplyChainContract:
         Args:
             token_id (int): unique token identificaiton number representing the batch
         """
+        filtered_events = self.get_filtered_events(token_id)
+
         # init empty list
         transfers = []
 
-        # filter for given token
-        token_filter = self.contract.events.transfer.createFilter(
-            fromBlock=0, argument_filters={"tokenId": token_id}
-        )
-        reports = token_filter.get_all_entries()
-
         # loop through all events and append addresses from each event.
-        for x, report in enumerate(reports):
-            report_dict = dict(report)
+        for x, event in enumerate(filtered_events):
+            report_dict = dict(event)
             transfer_from = report_dict["args"]["transferFrom"]
             transfer_to = report_dict["args"]["transferTo"]
             transfers.append((transfer_from, transfer_to))
@@ -321,8 +334,8 @@ class SupplyChainContract:
             batch_number(int): integer relating to batch
         """
         # get all coordinates from contract function
-        coords = self.get_all_cooordinates(batch_number)
-        coord_list = [[x[1], x[0]] for x in coords]
+        coords = self.map_data(batch_number)
+        coords = list(zip(coords["longitude"], coords["latitude"]))
 
         # construct dict for json
         geoJSON = {
@@ -330,7 +343,7 @@ class SupplyChainContract:
             "features": [
                 {
                     "type": "Feature",
-                    "geometry": {"type": "LineString", "coordinates": coord_list},
+                    "geometry": {"type": "LineString", "coordinates": coords},
                     "properties": {},
                 },
             ],

@@ -1,4 +1,20 @@
 import streamlit as st
+import os
+from dotenv import load_dotenv
+from supply_chain import SupplyChainContract
+
+# load environment vairables
+load_dotenv()
+w3_providerURI = os.getenv("WEB3_PROVIDER_URI")
+contract_address = os.getenv("SMART_CONTRACT_ADDRESS")
+user_address = os.getenv("CONTRACT_USER_ADDRESS")
+path_to_contract = "../contracts/compiled/coffeeChain.json"
+
+# Init supply chain contract
+if "contract" not in st.session_state:
+    st.session_state.contract = SupplyChainContract(
+        w3_providerURI, path_to_contract, contract_address, user_address
+    )
 
 st.markdown(
     f" ![Alt Text](https://victoryoffices.com.au/wp-content/uploads/2018/11/coffee-productivity-blog.jpg)"

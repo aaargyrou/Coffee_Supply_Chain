@@ -11,20 +11,13 @@ from PIL import Image
 import time
 import webbrowser
 
-# load environment vairables
-load_dotenv()
-w3_providerURI = os.getenv("WEB3_PROVIDER_URI")
-contract_address = os.getenv("SMART_CONTRACT_ADDRESS")
-user_address = os.getenv("CONTRACT_USER_ADDRESS")
-path_to_contract = "../contracts/compiled/coffeeChain.json"
-# Init supply chain contract
-contract = SupplyChainContract(
-    w3_providerURI, path_to_contract, contract_address, user_address
-)
+# get contract object
+contract = st.session_state.contract
+
 # list of addresses on the testnet
 addresses = contract.w3_provider.eth.accounts
 
-
+# option menu to select nodes or batches
 container = st.container()
 with container:
     selected = option_menu(
@@ -40,6 +33,7 @@ with container:
         orientation="horizontal",
     )
 
+# ----- NODE VIEW -----
 if selected == "Nodes":
     node_action = option_menu(
         menu_title="Select a function",
@@ -52,8 +46,8 @@ if selected == "Nodes":
         orientation="horizontal",
     )
 
+    # ----- ADD NODE -----
     if node_action == "Add node":
-        # Create a Dataframe
         df = pd.DataFrame()
 
         # Sidebar Input for contract Details
@@ -66,7 +60,7 @@ if selected == "Nodes":
         latitude = st.number_input("Business Latitude")
         longitude = st.number_input("Business Longitude")
 
-        # BUTTON TO LINK TO SMART CONTRACT AND STORE DATA IN THE BLOCKCHAIN
+        # button to push data to smart contract.
         if st.button("Add Business"):
             df = df.append(
                 {
@@ -84,16 +78,19 @@ if selected == "Nodes":
             st.map(df)
             add_hash = contract.add_node(address, name, node_type, latitude, longitude)
 
+    # ----- VIEW NODE -----
     if node_action == "View node info":
         address = st.selectbox("Business ETH address", options=addresses)
         st.write(contract.get_node(address))
 
+    # ----- NODE OWNERSHIP -----
     if node_action == "Batches owned by node":
         address = st.selectbox("Business ETH address", options=addresses)
         batches = st.selectbox(
             "Select a batch", options=contract.all_batches_owned_by(address)
         )
 
+# ----- BATCH VIEW -----
 if selected == "Batches":
     batch_action = option_menu(
         menu_title="Select a function",
@@ -107,6 +104,7 @@ if selected == "Batches":
         orientation="horizontal",
     )
 
+    # ----- ADD BATCH -----
     if batch_action == "Add batch":
         df = pd.DataFrame()
 
@@ -138,6 +136,7 @@ if selected == "Batches":
             st.write(df)
             st.write(f"Batch has been created!\n txn hash: {batch}")
 
+    # ----- PURCHASE BATCH -----
     if batch_action == "Purchase batch":
         # Select a batch to transfer and get owner address
         batch_num = st.number_input("Select a batch number", min_value=0)
@@ -161,6 +160,7 @@ if selected == "Batches":
                 "Batch not available for purchase, owner must first approve purchase"
             )
 
+    # ----- APPROVE PURCHASE -----
     if batch_action == "Approve purchase":
         # variables used in approval
         batch_num = st.number_input(
@@ -180,6 +180,7 @@ if selected == "Batches":
                 "Batch not approved for sending, please check details and try again."
             )
 
+    # ----- BATCH DETAILS -----
     if batch_action == "Batch details":
         batch_num = st.number_input("Select a batch number to view", min_value=0)
         batch_owner = contract.get_batch_owner(batch_num)
@@ -188,6 +189,7 @@ if selected == "Batches":
         st.write(f"Current owner: {batch_owner}")
         st.write(f"Current value (ETH): {batch_value}")
 
+        # ----- BATCH INFO -----
         if st.button("View information"):
             uri = contract.get_batch_URI(batch_num)
             webbrowser.open_new_tab(uri)
@@ -202,6 +204,7 @@ if selected == "Batches":
             contract.set_batch_state(batch_state, batch_num)
             st.write("Batch details successfully updated!")
 
+    # ----- QR CODE -----
     if batch_action == "Generate QR code":
         # qr_code_content select box with batch's data
         batch_num = st.number_input("Select a batch number", min_value=0)

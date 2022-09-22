@@ -11,22 +11,8 @@ import pandas as pd
 import json
 from supply_chain import SupplyChainContract
 
-# os and env variables
-import os
-from dotenv import load_dotenv
-
-# load environment variables
-load_dotenv()
-w3_providerURI = os.getenv("WEB3_PROVIDER_URI")
-contract_address = os.getenv("SMART_CONTRACT_ADDRESS")
-user_address = os.getenv("CONTRACT_USER_ADDRESS")
-openweathermapAPIkey = os.getenv("OPEN_WEATHER_MAP_API_KEY")
-path_to_contract = "../contracts/compiled/coffeeChain.json"
-
-# Init supply chain contract
-contract = SupplyChainContract(
-    w3_providerURI, path_to_contract, contract_address, user_address
-)
+# get contract object
+contract = st.session_state.contract
 
 # selection bar for users
 selected = option_menu(
@@ -42,9 +28,13 @@ batch_num = st.number_input("Which batch would you like to track?", min_value=0)
 if selected == "Map":
     map = leafmap.Map(center=[-37.8136, 144.9631], zoom=7)
     geojson = contract.batch_geoJSON(batch_num)
-    coords = contract.get_all_cooordinates(batch_num)
+    map_data = contract.map_data(batch_num)
     map.add_geojson(geojson, layer_name="supply lines")
+    map.add_points_from_xy(
+        map_data, x="longitude", y="latitude", color_column="category"
+    )
     map.to_streamlit(height=700)
+
 
 if selected == "Info":
     if st.button("open information for the batch in a new tab"):
