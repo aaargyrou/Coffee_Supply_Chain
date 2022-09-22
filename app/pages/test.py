@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import plotly.express as px
 import streamlit as st
 import webbrowser
 from dotenv import load_dotenv
@@ -49,10 +50,6 @@ def test_transactions():
         # approvals for transfer also need to be set to allow transfer of the NFT
         contract.approve_transfer(transaction[0], transaction[1], int(transaction[2]))
         contract.transfer_batch(transaction[0], transaction[1], int(transaction[2]))
-
-
-if st.button("test cache"):
-    st.write(contract)
 
 
 if st.button("Run tests"):

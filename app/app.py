@@ -5,15 +5,27 @@ from supply_chain import SupplyChainContract
 
 # load environment vairables
 load_dotenv()
-w3_providerURI = os.getenv("WEB3_PROVIDER_URI")
-contract_address = os.getenv("SMART_CONTRACT_ADDRESS")
-user_address = os.getenv("CONTRACT_USER_ADDRESS")
-path_to_contract = "../contracts/compiled/coffeeChain.json"
+ss = st.session_state
 
-# Init supply chain contract
-if "contract" not in st.session_state:
-    st.session_state.contract = SupplyChainContract(
-        w3_providerURI, path_to_contract, contract_address, user_address
+if "w3_providerURI" not in ss:
+    ss.w3_providerURI = os.getenv("WEB3_PROVIDER_URI")
+
+if "contract_address" not in ss:
+    ss.contract_address = os.getenv("SMART_CONTRACT_ADDRESS")
+
+if "user_address" not in ss:
+    ss.user_address = os.getenv("CONTRACT_USER_ADDRESS")
+
+if "path_to_contract" not in ss:
+    ss.path_to_contract = "../contracts/compiled/coffeeChain.json"
+
+if "openweathermapAPIkey" not in ss:
+    ss.openweathermapAPIkey = os.getenv("OPEN_WEATHER_MAP_API_KEY")
+
+# Init session state variables
+if "contract" not in ss:
+    ss.contract = SupplyChainContract(
+        ss.w3_providerURI, ss.path_to_contract, ss.contract_address, ss.user_address
     )
 
 st.markdown(
