@@ -117,11 +117,6 @@
         "name": "Batches",
         "outputs": [
             {
-                "internalType": "string",
-                "name": "batchURI",
-                "type": "string"
-            },
-            {
                 "internalType": "uint256",
                 "name": "value",
                 "type": "uint256"
